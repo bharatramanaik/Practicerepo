@@ -20,7 +20,7 @@ def setcookie():
 @app.route('/getcookie')
 def getcookie():
     name = request.cookies.get('userId')
-    return f"hi {escape(name)}" 
+    return f"hi {name}" 
 
 @app.route('/hello/<name>')
 def hellobro(name):
