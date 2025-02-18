@@ -1,4 +1,5 @@
 from flask import Flask, make_response, redirect, render_template, request, url_for, session
+from markupsafe import escape
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -14,13 +15,12 @@ def setcookie():
         response = make_response(render_template('cookie.html'))
         response.set_cookie('userId', user)
         session['name'] = user
-
         return response
 
 @app.route('/getcookie')
 def getcookie():
     name = request.cookies.get('userId')
-    return "hi %s" %name
+    return f"hi {escape(name)}" 
 
 @app.route('/hello/<name>')
 def hellobro(name):
