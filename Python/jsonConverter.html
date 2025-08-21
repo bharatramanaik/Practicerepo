@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JSON Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f9fc;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 { margin-bottom: 20px; }
+    textarea {
+      width: 90%;
+      height: 200px;
+      margin: 10px 0;
+      padding: 10px;
+      font-family: monospace;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      resize: vertical;
+    }
+    .buttons {
+      margin: 10px 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    button:hover { background: #0056b3; }
+    .error {
+      color: #dc3545;
+      font-size: 14px;
+      margin: 5px 0;
+      padding: 8px;
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      border-radius: 4px;
+      display: none;
+    }
+    .info {
+      font-size: 14px;
+      color: #6c757d;
+      margin: 10px 0;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>JSON Converter</h1>
+  <textarea id="input" placeholder="Paste your JSON or JSON string here..."></textarea>
+  <div class="buttons">
+    <button onclick="toPretty()">Pretty Format</button>
+    <button onclick="toCompact()">Compact Format</button>
+    <button onclick="toJsonString()">To JSON String</button>
+    <button onclick="fromJsonString()">From JSON String</button>
+    <button onclick="clearAll()">Clear</button>
+  </div>
+  <div id="error" class="error"></div>
+  <div style="position: relative; width: 90%;">
+    <textarea id="output" placeholder="Result will appear here..."></textarea>
+    <button id="copyBtn" onclick="copyOutput()" style="position: absolute; top: 10px; right: 10px; padding: 5px 10px; font-size: 12px; display: none;">Copy</button>
+  </div>
+  <div class="info">
+    <strong>Tips:</strong> Use "To JSON String" to escape JSON for use in code. Use "From JSON String" to unescape escaped JSON.
+  </div>
+  
+  <script>
+    function showCopyButton() {
+      const output = document.getElementById('output').value;
+      const copyBtn = document.getElementById('copyBtn');
+      if (output.trim()) {
+        copyBtn.style.display = 'block';
+      } else {
+        copyBtn.style.display = 'none';
+      }
+    }
+
+    function copyOutput() {
+      const output = document.getElementById('output');
+      output.select();
+      output.setSelectionRange(0, 99999); // For mobile devices
+      navigator.clipboard.writeText(output.value).then(() => {
+        const copyBtn = document.getElementById('copyBtn');
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        copyBtn.style.background = '#28a745';
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+          copyBtn.style.background = '#007bff';
+        }, 1000);
+      }).catch(() => {
+        // Fallback for older browsers
+        document.execCommand('copy');
+        const copyBtn = document.getElementById('copyBtn');
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        copyBtn.style.background = '#28a745';
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+          copyBtn.style.background = '#007bff';
+        }, 1000);
+      });
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('error');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      setTimeout(() => {
+        errorDiv.style.display = 'none';
+      }, 3000);
+    }
+
+    function toPretty() {
+      try {
+        const input = document.getElementById('input').value.trim();
+        if (!input) {
+          showError("Please enter some JSON");
+          return;
+        }
+        const parsed = JSON.parse(input);
+        document.getElementById('output').value = JSON.stringify(parsed, null, 2);
+        showCopyButton();
+      } catch (e) {
+        showError("Invalid JSON: " + e.message);
+      }
+    }
+
+    function toCompact() {
+      try {
+        const input = document.getElementById('input').value.trim();
+        if (!input) {
+          showError("Please enter some JSON");
+          return;
+        }
+        const parsed = JSON.parse(input);
+        document.getElementById('output').value = JSON.stringify(parsed);
+        showCopyButton();
+      } catch (e) {
+        showError("Invalid JSON: " + e.message);
+      }
+    }
+
+    function toJsonString() {
+      try {
+        const input = document.getElementById('input').value.trim();
+        if (!input) {
+          showError("Please enter some JSON");
+          return;
+        }
+        // First validate it's valid JSON
+        const parsed = JSON.parse(input);
+        // Convert to compact JSON (no whitespace/newlines), then to escaped string
+        const compactJson = JSON.stringify(parsed);
+        document.getElementById('output').value = JSON.stringify(compactJson);
+        showCopyButton();
+      } catch (e) {
+        showError("Invalid JSON: " + e.message);
+      }
+    }
+
+    function fromJsonString() {
+      try {
+        const input = document.getElementById('input').value.trim();
+        if (!input) {
+          showError("Please enter a JSON string");
+          return;
+        }
+        // Parse the JSON string to get the unescaped content
+        const unescaped = JSON.parse(input);
+        // Validate that the unescaped content is also valid JSON
+        JSON.parse(unescaped);
+        // Format it nicely
+        document.getElementById('output').value = JSON.stringify(JSON.parse(unescaped), null, 2);
+        showCopyButton();
+      } catch (e) {
+        showError("Invalid JSON string: " + e.message);
+      }
+    }
+
+    function clearAll() {
+      document.getElementById('input').value = '';
+      document.getElementById('output').value = '';
+      document.getElementById('error').style.display = 'none';
+      document.getElementById('copyBtn').style.display = 'none';
+    }
+
+    // Auto-resize textareas based on content
+    document.getElementById('input').addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.max(200, this.scrollHeight) + 'px';
+    });
+
+    document.getElementById('output').addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.max(200, this.scrollHeight) + 'px';
+    });
+  </script>
+</body>
+</html>
