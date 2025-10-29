@@ -23,6 +23,7 @@
 
 - In service task set implementation as delegate expression and in delegate expression add ${class name (fisrstletter small)}.
 The class should implement JavaDelegate interface and it has one method execute where custom logic can be written
+- Process definition key is the id of that workflow
 - Businesskey is used to uniquely identify instances(ex: ordernumber)
 - Field injection: we can set variables in field injection, when service task is triggered it adds that variable to execution variable
 
@@ -37,5 +38,6 @@ In Collection we have to mention on which subprocesses needs to be created. and 
 
 # Best practices :
 - Entity is used to store in db it should be converted to dto to be sent outside, Modelmapper can be used for convert entity to dto
+
 
 
